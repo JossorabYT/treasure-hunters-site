@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Treasure Hunters – Suivi des récompenses</title>
+<style>
+:root{
+  --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --sub:#6e6e73; --sep:rgba(0,0,0,.1);
+  --blue:#0071e3; --trough:#e8e8ed; --seg-on:#fff; --off:#e9e9ea; --green:#34c759;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  --common:#8e8e93; --epic:#af52de; --rare:#0a84ff; --legendary:#ff9f0a;
+  --bar:color-mix(in srgb,var(--bg) 78%,transparent);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--sub:#98989d;--sep:rgba(255,255,255,.14);--blue:#0a84ff;--trough:#2c2c2e;--seg-on:#636366;--off:#39393d;--shadow:none}
+}
+:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--sub:#98989d;--sep:rgba(255,255,255,.14);--blue:#0a84ff;--trough:#2c2c2e;--seg-on:#636366;--off:#39393d;--shadow:none}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.47 var(--font);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 60%,transparent);outline-offset:2px}
+
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--sep)}
+.nav div{max-width:980px;margin:0 auto;height:48px;padding:0 22px;display:flex;align-items:center;justify-content:space-between}
+.nav b{font-weight:600}
+.chip{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+main{max-width:980px;margin:0 auto;padding:0 22px 88px}
+
+.hero{text-align:center;padding:56px 0 8px}
+h1{margin:0;font-size:clamp(40px,8vw,72px);line-height:1.05;font-weight:700;letter-spacing:-.035em}
+.lead{margin:12px auto 0;font-size:21px;color:var(--sub);max-width:30ch}
+.ringwrap{position:relative;width:136px;height:136px;margin:32px auto 12px}
+.ringwrap svg{display:block}
+#arc{transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1),opacity .2s}
+.rc{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1.1}
+.rc b{font-size:40px;font-weight:700;letter-spacing:-.03em}
+.rc span{font-size:14px;color:var(--sub)}
+.status{margin:0 auto;font-size:14px;color:var(--sub);max-width:46ch;display:flex;gap:8px;align-items:flex-start;justify-content:center;text-align:left}
+.status i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--common);margin-top:8px}
+.status.ok i{background:var(--green)}
+
+h2{margin:0;font-size:clamp(28px,4.5vw,40px);line-height:1.1;font-weight:700;letter-spacing:-.025em}
+h3{margin:0;font-size:24px;font-weight:600;letter-spacing:-.015em}
+.sect{margin-top:64px}
+.group{background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-top:20px}
+.row{padding:16px 20px;border-bottom:1px solid var(--sep)}
+.row:last-child{border:0}
+.row b{display:block;font-weight:600}
+.row span{color:var(--sub);font-size:16px}
+
+.tools{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--trough);border-radius:10px;padding:2px}
+.seg button{font:inherit;font-size:14px;font-weight:500;border:0;background:transparent;color:var(--text);padding:6px 16px;border-radius:8px;cursor:pointer;transition:background .2s}
+.seg button[aria-pressed="true"]{background:var(--seg-on);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+.week{margin-top:40px}
+.wh{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.wh small{font-size:15px;color:var(--sub)}
+.tag{font-size:13px;font-weight:600;padding:2px 10px;border-radius:980px;background:var(--trough);color:var(--sub)}
+.tag.on{background:color-mix(in srgb,var(--green) 18%,transparent);color:#1f8a3f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.on{color:var(--green)}}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.card{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;padding:18px 18px 16px;border-top:5px solid var(--rc);transition:background .25s}
+.card.got{background:color-mix(in srgb,var(--green) 9%,var(--card))}
+.thumb{position:relative;margin:-18px -18px 8px;aspect-ratio:16/10;display:grid;place-items:center;overflow:hidden;background:color-mix(in srgb,var(--rc) 14%,var(--trough))}
+.thumb svg{width:34%;height:auto;color:var(--rc);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.tb{position:absolute;right:8px;bottom:8px;display:flex;gap:6px}
+.tb label,.tb button{font:inherit;font-size:12px;font-weight:600;padding:3px 10px;border:0;border-radius:980px;color:var(--text);background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer}
+.tb input{display:none}
+.tier{font-size:13px;font-weight:600;color:var(--rc);display:flex;align-items:center;gap:6px}
+.tier::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--rc)}
+.name{font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.2;word-break:break-word}
+.type{font-size:15px;color:var(--sub)}
+.odds{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums}
+.own{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:15px;font-weight:500}
+.sw{position:relative;width:46px;height:28px;flex:none}
+.sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:28px;background:var(--off);transition:background .25s}
+.sw span::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.sw input:checked+span{background:var(--green)}
+.sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:3px solid color-mix(in srgb,var(--blue) 60%,transparent);outline-offset:2px}
+.empty{text-align:center;color:var(--sub);padding:56px 0;font-size:19px}
+
+footer{margin-top:64px;font-size:14px;color:var(--sub)}
+footer a{color:var(--blue);text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="nav"><div><b>Treasure Hunters</b><span class="chip" id="navCount">0 / 0</span></div></header>
+<main>
+  <section class="hero">
+    <h1>Tes récompenses</h1>
+    <p class="lead">Coche ce que tu as déjà trouvé dans les coffres.</p>
+    <div class="ringwrap">
+      <svg viewBox="0 0 136 136" width="136" height="136" aria-hidden="true">
+        <circle cx="68" cy="68" r="58" fill="none" stroke="var(--trough)" stroke-width="12"/>
+        <circle id="arc" cx="68" cy="68" r="58" fill="none" stroke="var(--blue)" stroke-width="12" stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4" transform="rotate(-90 68 68)"/>
+      </svg>
+      <div class="rc"><b id="got">0</b><span id="of">sur 0</span></div>
+    </div>
+    <p class="status" id="status"><i></i><span>Chargement de ton compte…</span></p>
+  </section>
+
+  <section class="sect">
+    <h2>Le token</h2>
+    <div class="group">
+      <div class="row"><b>Comment l’avoir</b><span>En ouvrant ou en cassant un coffre en Battle Royale pendant Treasure Hunters, tu as une toute petite chance de gagner une récompense en plus. Toute ton équipe la reçoit.</span></div>
+      <div class="row"><b>Les chances</b><span>Environ 1 coffre sur 137 500 pour le token Pirate Shop Access, selon les guides. Un seul drop donne les deux tokens (2026 et 2027).</span></div>
+      <div class="row"><b>Comment l’activer</b><span>Boutique d’objets, puis « Plunder the Item Shop », puis « Activate Now ». Pendant 14 jours, les objets éligibles vendus en V-Bucks sont gratuits, et tu les gardes pour toujours. Les 14 jours ne démarrent qu’à l’activation.</span></div>
+      <div class="row"><b>Les dates limites</b><span>Token 2026 : à activer avant le 15 décembre 2026. Token 2027 : utilisable du 1er janvier au 15 décembre 2027. Il ne peut pas être donné à quelqu’un d’autre.</span></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <div class="tools">
+      <h2>Récompenses</h2>
+      <div class="seg" id="seg">
+        <button type="button" data-f="all" aria-pressed="true">Toutes</button>
+        <button type="button" data-f="got" aria-pressed="false">Obtenues</button>
+        <button type="button" data-f="miss" aria-pressed="false">Manquantes</button>
+      </div>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <footer>
+    <p>Les icônes sont des dessins originaux, pas les visuels d’Epic. Tu peux ajouter ta propre image sur chaque carte : elle reste sur ton appareil et n’est pas partagée. La rareté est classée d’après les chances de drop rapportées par les sites. Les listes et les chances viennent de guides publiés en novembre 2026 et peuvent changer : vérifie en jeu. Sources :
+      <a href="https://www.destructoid.com/all-pirate-chest-loot-and-rewards-in-fortnite-treasure-hunters/" target="_blank" rel="noopener">Destructoid</a>,
+      <a href="https://gamerant.com/fortnite-treasure-chest-free-rewards-how-it-works/" target="_blank" rel="noopener">Game Rant</a>,
+      <a href="https://games.gg/fortnite/guides/fortnite-pirate-shop-explained/" target="_blank" rel="noopener">games.gg</a>.
+      </p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var LS = "treasureTracker.v1";
+  var TIERS = { legendary: "Légendaire", epic: "Épique", rare: "Rare", common: "Commun" };
+  var WEEKS = [
+    { k: 0, title: "Chaque semaine", range: "Toute la saison" },
+    { k: 1, title: "Semaine 1", range: "1 au 7 nov.", start: new Date(2026, 10, 1), end: new Date(2026, 10, 7) },
+    { k: 2, title: "Semaine 2", range: "7 au 14 nov.", start: new Date(2026, 10, 7), end: new Date(2026, 10, 14) }
+  ];
+  var R = [
+    { id: "tok26", n: "Pirate Shop Access", t: "Token boutique", w: 0, o: 137500 },
+    { id: "w1-rocky", n: "Solid Gold A$AP Rocky", t: "Tenue", w: 1, o: 1562500 },
+    { id: "w1-gaunt", n: "Solid Gold A$AP Rocky Gauntlets", t: "Pioche", w: 1, o: 568 },
+    { id: "w1-notres", n: "No Trespassing", t: "Jam Track", w: 1, o: 391 },
+    { id: "w1-plunder", n: "Plunder in Paradise", t: "Écran de chargement", w: 1, o: 272 },
+    { id: "w1-gwagon", n: "Mercedes-AMG G 63 « G-Wagon »", t: "Véhicule", w: 1, o: 7813 },
+    { id: "w1-llama", n: "Golden Llama Crew", t: "Décalque de véhicule", w: 1, o: 7813 },
+    { id: "w2-uzi", n: "Solid Gold Lil Uzi Vert", t: "Tenue", w: 2, o: 1562500 },
+    { id: "w2-crew", n: "Lil’ Uzi Crew", t: "Accessoire de dos", w: 2, o: 568 },
+    { id: "w2-london", n: "London", t: "Jam Track", w: 2, o: 391 },
+    { id: "w2-kawaii", n: "So Kawaii", t: "Écran de chargement", w: 2, o: 272 },
+    { id: "w2-cadillac", n: "Gold Cadillac Blackwing", t: "Véhicule", w: 2, o: 7813 }
+  ];
+  R.forEach(function (r) { r.tier = r.o >= 137500 ? "legendary" : r.o >= 7813 ? "epic" : r.o >= 272 ? "rare" : "common"; });
+
+  var $ = function (id) { return document.getElementById(id); };
+  var owned = {}, filter = "all", ref = null, kind = "loading";
+  var LS_IMG = "treasureTracker.imgs.v1", imgs = {};
+  function ic(p) { return '<svg viewBox="0 0 48 48" aria-hidden="true">' + p + '</svg>'; }
+  var ICONS = {
+    token: ic('<circle cx="24" cy="24" r="16"/><path d="M24 15l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>'),
+    outfit: ic('<path d="M16 8l-10 6 4 8 5-2v22h18V20l5 2 4-8-10-6c-1 4-4 6-8 6s-7-2-8-6z"/>'),
+    pickaxe: ic('<path d="M10 42L32 13"/><path d="M14 12Q34 4 44 26"/>'),
+    music: ic('<path d="M18 36V10l20-4v26"/><circle cx="12" cy="36" r="6"/><circle cx="32" cy="32" r="6"/>'),
+    screen: ic('<rect x="6" y="9" width="36" height="30" rx="4"/><circle cx="17" cy="20" r="3"/><path d="M6 34l11-9 8 7 6-5 11 9"/>'),
+    car: ic('<path d="M6 30v-6l5-9h22l7 9h2v6z"/><circle cx="15" cy="32" r="4"/><circle cx="35" cy="32" r="4"/>'),
+    decal: ic('<rect x="8" y="8" width="32" height="32" rx="8"/><path d="M8 28l12-12M20 40l20-20"/>'),
+    bag: ic('<path d="M16 14a8 8 0 0 1 16 0"/><rect x="10" y="14" width="28" height="28" rx="8"/><path d="M18 28h12"/>'),
+    gizmo: ic('<path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/>')
+  };
+  var ICON_OF = { "Token boutique": "token", "Tenue": "outfit", "Pioche": "pickaxe", "Jam Track": "music", "Écran de chargement": "screen", "Véhicule": "car", "Décalque de véhicule": "decal", "Accessoire de dos": "bag", "Gizmo": "gizmo" };
+  function loadImgs() { try { imgs = JSON.parse(localStorage.getItem(LS_IMG) || "{}") || {}; } catch (e) { imgs = {}; } }
+  function saveImgs() {
+    try { localStorage.setItem(LS_IMG, JSON.stringify(imgs)); }
+    catch (e) { $("status").lastChild.textContent = "Mémoire pleine : retire une image avant d’en ajouter une autre."; }
+  }
+  function shrink(f, cb) {
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function (e) {
+      var im = new Image();
+      im.onload = function () {
+        var s = Math.min(1, 360 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+        c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        cb(c.toDataURL("image/jpeg", 0.8));
+      };
+      im.src = e.target.result;
+    };
+    rd.readAsDataURL(f);
+  }
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function loadLocal() {
+    try { (JSON.parse(localStorage.getItem(LS) || "[]") || []).forEach(function (id) { owned[id] = true; }); } catch (e) {}
+  }
+  function ids() { return Object.keys(owned).filter(function (k) { return owned[k]; }); }
+  function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(ids())); } catch (e) {} }
+  function persist() {
+    saveLocal();
+    if (!ref) return;
+    ref.set({ ids: ids(), updated: Date.now() }).catch(function () { ref = null; setStatus("denied"); });
+  }
+
+  var MSG = {
+    loading: "Chargement de ton compte…",
+    account: "Ta progression est enregistrée sur ton compte. Chaque personne a la sienne.",
+    local: "Ta progression est enregistrée dans ce navigateur, sur cet appareil. Chaque personne a la sienne.",
+    denied: "Ton accès est en lecture seule, donc la progression reste sur cet appareil. Demande à Jojo de te passer en contributeur."
+  };
+  function setStatus(k) {
+    kind = k;
+    var s = $("status"); s.className = "status" + (k === "account" ? " ok" : "");
+    s.lastChild.textContent = MSG[k];
+  }
+
+  function statusOf(w) {
+    if (!w.start) return null;
+    var now = new Date();
+    return now < w.start ? "À venir" : now < w.end ? "En cours" : "Terminée";
+  }
+
+  function render() {
+    var total = R.length, got = R.filter(function (r) { return owned[r.id]; }).length;
+    var pct = total ? got / total : 0;
+    $("got").textContent = got; $("of").textContent = "sur " + total;
+    $("navCount").textContent = got + " / " + total;
+    var arc = $("arc");
+    arc.style.strokeDashoffset = 364.4 * (1 - pct); arc.style.opacity = got ? 1 : 0;
+    arc.setAttribute("stroke", got === total && total ? "var(--green)" : "var(--blue)");
+
+    var list = $("list"); list.innerHTML = "";
+    var any = false;
+    WEEKS.forEach(function (w) {
+      var items = R.filter(function (r) {
+        return r.w === w.k && (filter === "all" || (filter === "got" ? owned[r.id] : !owned[r.id]));
+      });
+      if (!items.length) return;
+      any = true;
+      var sec = el("div", "week"), head = el("div", "wh");
+      head.appendChild(el("h3", "", w.title));
+      head.appendChild(el("small", "", w.range));
+      var st = statusOf(w);
+      if (st) head.appendChild(el("span", "tag" + (st === "En cours" ? " on" : ""), st));
+      sec.appendChild(head);
+      var grid = el("div", "grid");
+      items.forEach(function (r) {
+        var c = el("div", "card" + (owned[r.id] ? " got" : ""));
+        c.style.setProperty("--rc", "var(--" + r.tier + ")");
+        var th = el("div", "thumb"), pic = imgs[r.id];
+        if (pic) { var im = el("img"); im.src = pic; im.alt = r.n; th.appendChild(im); }
+        else th.innerHTML = ICONS[ICON_OF[r.t]] || ICONS.gizmo;
+        var tb = el("div", "tb"), pl = el("label", "", pic ? "Changer" : "Mon image"), pf = el("input");
+        pf.type = "file"; pf.accept = "image/*"; pl.setAttribute("aria-label", "Ajouter ton image pour " + r.n);
+        pf.addEventListener("change", function () { shrink(pf.files[0], function (d) { imgs[r.id] = d; saveImgs(); render(); }); });
+        pl.appendChild(pf); tb.appendChild(pl);
+        if (pic) { var px = el("button", "", "Retirer"); px.type = "button"; px.addEventListener("click", function () { delete imgs[r.id]; saveImgs(); render(); }); tb.appendChild(px); }
+        th.appendChild(tb); c.appendChild(th);
+        c.appendChild(el("div", "tier", TIERS[r.tier]));
+        c.appendChild(el("div", "name", r.n));
+        c.appendChild(el("div", "type", r.t));
+        c.appendChild(el("div", "odds", "1 chance sur " + r.o.toLocaleString("fr-FR")));
+        var own = el("div", "own"), sw = el("label", "sw"), cb = el("input");
+        cb.type = "checkbox"; cb.checked = !!owned[r.id]; cb.setAttribute("aria-label", "Obtenu : " + r.n);
+        cb.addEventListener("change", function () { owned[r.id] = cb.checked; persist(); render(); });
+        sw.appendChild(cb); sw.appendChild(el("span"));
+        own.appendChild(el("span", "", "Obtenu")); own.appendChild(sw);
+        c.appendChild(own); grid.appendChild(c);
+      });
+      sec.appendChild(grid); list.appendChild(sec);
+    });
+    if (!any) list.appendChild(el("div", "empty", filter === "got" ? "Rien d’obtenu pour l’instant." : "Tout est coché, bravo !"));
+  }
+
+  $("seg").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    filter = b.dataset.f;
+    Array.prototype.forEach.call($("seg").children, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    render();
+  });
+
+  async function initAccount() {
+    try {
+      if (!window.claude || !window.claude.use) { setStatus("local"); return; }
+      var user = await window.claude.use("user"), db = await window.claude.use("db");
+      var id = user ? await user.id() : null;
+      if (!user || !db || !id) { setStatus("local"); return; }
+      var r = db.doc("data/users/" + id + "/owned");
+      var timer = setTimeout(function () { if (kind === "loading") setStatus("local"); }, 10000);
+      r.onSnapshot(function (snap) {
+        clearTimeout(timer);
+        if (snap.exists) {
+          var d = snap.data() || {};
+          owned = {}; (Array.isArray(d.ids) ? d.ids : []).forEach(function (x) { owned[x] = true; });
+          saveLocal();
+        } else if (ids().length) {
+          r.set({ ids: ids(), updated: Date.now() }).catch(function () {});
+        }
+        ref = r;
+        if (kind !== "denied") setStatus("account");
+        render();
+      }, function () { clearTimeout(timer); setStatus("local"); });
+    } catch (e) { setStatus("local"); }
+  }
+
+  loadLocal(); loadImgs(); render(); setStatus("loading"); initAccount();
+})();
+</script>
+</body>
+</html>
