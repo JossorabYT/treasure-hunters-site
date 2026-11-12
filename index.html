@@ -70,6 +70,7 @@ h3{margin:0;font-size:24px;font-weight:600;letter-spacing:-.015em}
 .thumb{position:relative;margin:-18px -18px 8px;aspect-ratio:16/10;display:grid;place-items:center;overflow:hidden;background:color-mix(in srgb,var(--rc) 14%,var(--trough))}
 .thumb svg{width:34%;height:auto;color:var(--rc);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .thumb img{width:100%;height:100%;object-fit:cover}
+.thumb img.fit{object-fit:contain;padding:12px}
 .tb{position:absolute;right:8px;bottom:8px;display:flex;gap:6px}
 .tb label,.tb button{font:inherit;font-size:12px;font-weight:600;padding:3px 10px;border:0;border-radius:980px;color:var(--text);background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer}
 .tb input{display:none}
@@ -133,7 +134,7 @@ footer a:hover{text-decoration:underline}
   </section>
 
   <footer>
-    <p>Les icônes sont des dessins originaux, pas les visuels d’Epic. Tu peux ajouter ta propre image sur chaque carte : elle reste sur ton appareil et n’est pas partagée. La rareté est classée d’après les chances de drop rapportées par les sites. Les listes et les chances viennent de guides publiés en novembre 2026 et peuvent changer : vérifie en jeu. Sources :
+    <p>Site de fan non officiel. Les images des récompenses appartiennent à Epic Games. Les icônes dessinées sont des créations originales. Tu peux ajouter ta propre image sur chaque carte : elle reste sur ton appareil et n’est pas partagée. La rareté est classée d’après les chances de drop rapportées par les sites. Les listes et les chances viennent de guides publiés en novembre 2026 et peuvent changer : vérifie en jeu. Sources :
       <a href="https://www.destructoid.com/all-pirate-chest-loot-and-rewards-in-fortnite-treasure-hunters/" target="_blank" rel="noopener">Destructoid</a>,
       <a href="https://gamerant.com/fortnite-treasure-chest-free-rewards-how-it-works/" target="_blank" rel="noopener">Game Rant</a>,
       <a href="https://games.gg/fortnite/guides/fortnite-pirate-shop-explained/" target="_blank" rel="noopener">games.gg</a>.
@@ -151,18 +152,18 @@ footer a:hover{text-decoration:underline}
     { k: 2, title: "Semaine 2", range: "7 au 14 nov.", start: new Date(2026, 10, 7), end: new Date(2026, 10, 14) }
   ];
   var R = [
-    { id: "tok26", n: "Pirate Shop Access", t: "Token boutique", w: 0, o: 137500 },
-    { id: "w1-rocky", n: "Solid Gold A$AP Rocky", t: "Tenue", w: 1, o: 1562500 },
-    { id: "w1-gaunt", n: "Solid Gold A$AP Rocky Gauntlets", t: "Pioche", w: 1, o: 568 },
-    { id: "w1-notres", n: "No Trespassing", t: "Jam Track", w: 1, o: 391 },
-    { id: "w1-plunder", n: "Plunder in Paradise", t: "Écran de chargement", w: 1, o: 272 },
-    { id: "w1-gwagon", n: "Mercedes-AMG G 63 « G-Wagon »", t: "Véhicule", w: 1, o: 7813 },
+    { id: "tok26", img: "images/token.png", fit: true, n: "Pirate Shop Access", t: "Token boutique", w: 0, o: 137500 },
+    { id: "w1-rocky", img: "images/w1-rocky.png", fit: true, n: "Solid Gold A$AP Rocky", t: "Tenue", w: 1, o: 1562500 },
+    { id: "w1-gaunt", img: "images/w1-gaunt.png", fit: true, n: "Solid Gold A$AP Rocky Gauntlets", t: "Pioche", w: 1, o: 568 },
+    { id: "w1-notres", img: "images/w1-notres.png", fit: true, n: "No Trespassing", t: "Jam Track", w: 1, o: 391 },
+    { id: "w1-plunder", img: "images/w1-plunder.jpg", n: "Plunder in Paradise", t: "Écran de chargement", w: 1, o: 272 },
+    { id: "w1-gwagon", img: "images/w1-gwagon.png", fit: true, n: "Mercedes-AMG G 63 « G-Wagon »", t: "Véhicule", w: 1, o: 7813 },
     { id: "w1-llama", n: "Golden Llama Crew", t: "Décalque de véhicule", w: 1, o: 7813 },
-    { id: "w2-uzi", n: "Solid Gold Lil Uzi Vert", t: "Tenue", w: 2, o: 1562500 },
-    { id: "w2-crew", n: "Lil’ Uzi Crew", t: "Accessoire de dos", w: 2, o: 568 },
-    { id: "w2-london", n: "London", t: "Jam Track", w: 2, o: 391 },
-    { id: "w2-kawaii", n: "So Kawaii", t: "Écran de chargement", w: 2, o: 272 },
-    { id: "w2-cadillac", n: "Gold Cadillac Blackwing", t: "Véhicule", w: 2, o: 7813 }
+    { id: "w2-uzi", img: "images/w2-uzi.png", fit: true, n: "Solid Gold Lil Uzi Vert", t: "Tenue", w: 2, o: 1562500 },
+    { id: "w2-crew", img: "images/w2-crew.png", fit: true, n: "Lil’ Uzi Crew", t: "Accessoire de dos", w: 2, o: 568 },
+    { id: "w2-london", img: "images/w2-london.png", fit: true, n: "London", t: "Jam Track", w: 2, o: 391 },
+    { id: "w2-kawaii", img: "images/w2-kawaii.jpg", n: "So Kawaii", t: "Écran de chargement", w: 2, o: 272 },
+    { id: "w2-cadillac", img: "images/w2-cadillac.png", fit: true, n: "Gold Cadillac Blackwing", t: "Véhicule", w: 2, o: 7813 }
   ];
   R.forEach(function (r) { r.tier = r.o >= 137500 ? "legendary" : r.o >= 7813 ? "epic" : r.o >= 272 ? "rare" : "common"; });
 
@@ -265,14 +266,14 @@ footer a:hover{text-decoration:underline}
       items.forEach(function (r) {
         var c = el("div", "card" + (owned[r.id] ? " got" : ""));
         c.style.setProperty("--rc", "var(--" + r.tier + ")");
-        var th = el("div", "thumb"), pic = imgs[r.id];
-        if (pic) { var im = el("img"); im.src = pic; im.alt = r.n; th.appendChild(im); }
-        else th.innerHTML = ICONS[ICON_OF[r.t]] || ICONS.gizmo;
-        var tb = el("div", "tb"), pl = el("label", "", pic ? "Changer" : "Mon image"), pf = el("input");
+        var th = el("div", "thumb"), mine = imgs[r.id], pic = mine || r.img, fallback = ICONS[ICON_OF[r.t]] || ICONS.gizmo;
+        if (pic) { var im = el("img", !mine && r.fit ? "fit" : ""); im.src = pic; im.alt = r.n; im.onerror = function () { im.remove(); th.insertAdjacentHTML("afterbegin", fallback); }; th.appendChild(im); }
+        else th.innerHTML = fallback;
+        var tb = el("div", "tb"), pl = el("label", "", mine ? "Changer" : "Mon image"), pf = el("input");
         pf.type = "file"; pf.accept = "image/*"; pl.setAttribute("aria-label", "Ajouter ton image pour " + r.n);
         pf.addEventListener("change", function () { shrink(pf.files[0], function (d) { imgs[r.id] = d; saveImgs(); render(); }); });
         pl.appendChild(pf); tb.appendChild(pl);
-        if (pic) { var px = el("button", "", "Retirer"); px.type = "button"; px.addEventListener("click", function () { delete imgs[r.id]; saveImgs(); render(); }); tb.appendChild(px); }
+        if (mine) { var px = el("button", "", "Retirer"); px.type = "button"; px.addEventListener("click", function () { delete imgs[r.id]; saveImgs(); render(); }); tb.appendChild(px); }
         th.appendChild(tb); c.appendChild(th);
         c.appendChild(el("div", "tier", TIERS[r.tier]));
         c.appendChild(el("div", "name", r.n));
